@@ -1,0 +1,125 @@
+#EC2-Start-Stop-Role
+
+import boto3
+import time
+# Enter the region your instances are in. Include only the region without specifying Availability Zone; e.g., 'us-east-1'
+region = 'ap-south-1'
+# Enter your instances here: ex. ['X-XXXXXXXX', 'X-XXXXXXXX']
+
+t2_instances = ['i-02a8dd56220c457dd']
+ma_instances = ['i-02a8dd56220c457dd']
+#ec2 = boto3.client('ec2', region_name=region)
+
+def lambda_handler(event, context):
+
+    ec2 = boto3.client('ec2', region_name=region)
+    ec2.stop_instances(InstanceIds=t2_instances)
+    print 'stopped your instances: ' + str(t2_instances)
+    time.sleep(5)
+
+#def lambda_handler(event, context):
+    ec2 = boto3.client('ec2', region_name=region)
+    ec2.start_instances(InstanceIds=ma_instances)
+    print 'started your instances: ' + str(ma_instances)
+    
+    
+    ##############################################################################
+    #EC2-Start-Role
+    
+    import boto3
+# Enter the region your instances are in. Include only the region without specifying Availability Zone; e.g., 'us-east-1'
+region = 'ap-south-1'
+# Enter your instances here: ex. ['X-XXXXXXXX', 'X-XXXXXXXX']
+instances = ['i-02a8dd56220c457dd']
+
+def lambda_handler(event, context):
+    ec2 = boto3.client('ec2', region_name=region)
+    ec2.stop_instances(InstanceIds=instances)
+    print 'stopped your instances: ' + str(instances)
+
+import time
+
+print "Start : %s" % time.ctime()
+time.sleep( 5 )
+print "End : %s" % time.ctime()
+
+################################################################
+import boto3
+region1 = 'ap-south-1'    
+instance = ['i-02a8dd56220c457dd']
+
+def lambda_handler(event, context):
+    ec22 = boto3.client('ec2', region_name=region1)
+    ec22.start_instances(InstanceIds=instance)
+    print 'started your instances: ' + str(instance)
+    
+    ################################################
+    #skv-cap-start
+    
+    import boto3
+t2_instances = ['i-02a8dd56220c457dd']
+region = 'ap-south-1'
+instances = ['i-02a8dd56220c457dd']
+ec2 = boto3.client('ec2', region_name=region)
+elb = boto3.client('elbv2')
+def lambda_handler(event, context):
+    ec2.start_instances(InstanceIds=instances)
+    print('started your instances: ' + str(instances))
+
+    response = elb.modify_listener(
+        ListenerArn='arn:aws:elasticloadbalancing:ap-south-1:152372890086:listener/app/skvv-cap/da87f3ca18f27373/2f3406ebde827479',
+        DefaultActions=[
+            {
+                'Type': 'forward',
+                'TargetGroupArn': 'arn:aws:elasticloadbalancing:ap-south-1:152372890086:targetgroup/skv-cap-target-group/937bda2ae20c69db'
+            }
+        ]
+    )
+    
+    return {
+        'statusCode': 200,
+        'isBase64Encoded': False,
+        'headers': { 'Content-Type': "text/html"},
+        'body': '<html><head><title>Page Title</title><style>body {background-color: skyblue;textalign: center;color: red;font-family: Arial, Helvetica, sans-serif;}</style></head><body><h1>Server is being ready please refresh the page after some time.</h1></body></html>'
+        }
+        
+        ##############################################################################################
+        #        Stop-Unused-and-ideal-Ec2-
+        import boto3
+def put_cpu_alarm(instance_id):
+    cloudWatch   = boto3.client('cloudwatch')
+    cloudWatch.put_metric_alarm(
+        AlarmName          = f'CPU_ALARM_{instance_id}',
+        AlarmDescription   = 'Alarm when server CPU does not exceed 0.15%',
+        AlarmActions       = ['arn:aws:automate:ap-south-1:ec2:stop'],
+        MetricName         = 'CPUUtilization',
+        Namespace          = 'AWS/EC2' ,
+        Statistic          = 'Average',
+        Dimensions         = [{'Name': 'InstanceId', 'Value': instance_id}],
+        Period             = 10800,
+        EvaluationPeriods  = 1,
+        Threshold          = 0.15,
+        ComparisonOperator = 'LessThanOrEqualToThreshold',
+        TreatMissingData   = 'notBreaching'
+    )
+def lambda_handler(event, context):
+    #instance_id = event['detail']['instance-id']
+    instance_id = 'i-05c7f1c08cd4e7519'
+    ec2 = boto3.resource('ec2')
+    instance = ec2.Instance(instance_id)
+    put_cpu_alarm(instance_id)
+    
+    #####################################################################
+    #stop-ec2-modify-elb
+    import boto3
+elb = boto3.client('elbv2')
+def lambda_handler(event, context):
+    response = elb.modify_listener(
+        ListenerArn='arn:aws:elasticloadbalancing:ap-south-1:152372890086:listener/app/skvv-cap/da87f3ca18f27373/2f3406ebde827479',
+        DefaultActions=[
+            {
+                'Type': 'forward',
+                'TargetGroupArn': 'arn:aws:elasticloadbalancing:ap-south-1:152372890086:targetgroup/skvv-cap/ba20b620ba0cf68d'
+            }
+        ]
+    )
