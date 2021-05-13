@@ -1,0 +1,61 @@
+#!/bin/bash
+NOW=$(date +"%m-%d-%Y-%H-%M-%S")
+echo $NOW
+##cat .aws/ec2credentials > .aws/credentials
+cp /home/deploy/.aws/ec2credentials_pankaj /home/deploy/.aws/credentials
+#apt install ec2-api-tools
+
+
+#creating EC2 AMI
+truncate -s 0 /home/deploy/AV6/av6ami.txt
+aws ec2 create-image --instance-id i-01b5e9fd766c857c6 --name $NOW-av6 --no-reboot | awk '{print $2}' > /home/deploy/AV6/av6ami.txt
+#aws ec2 create-image --instance-id  --name $NOW-Praman-autotag --no-reboot | awk '{print $2}' > ami.txt
+cat /home/deploy/AV6/av6ami.txt >> /home/deploy/AV6/av6-old-ami.txt
+
+ami=`cat /home/deploy/AV6/av6ami.txt | cut -d '"' -f2`
+#ec2-create-image --region ap-south-1 -n `date +%F`-test --no-reboot i-0e185e85a4a50ddd1 | awk '{print $2}'
+echo $ami
+
+#Updating Autoscaling Group & Deleting, Creating Launch configuration
+##my_commond () { amistatus=`aws ec2 describe-images --image-ids $ami | grep State | cut -d '"' -f4`; return $amistatus; }
+#aws ec2 describe-images --image-ids $ami | grep State | cut -d '"' -f4
+while :
+do
+  a=`aws ec2 describe-images --image-ids $ami | grep State | cut -d '"' -f4`
+  echo $a
+  b="available"
+  #echo $b
+  #echo $a
+  if [[ $a == $b ]];
+  then
+    #echo "ami is available"
+    echo "$NOW $ami is available"
+    break
+  fi
+  sleep 5
+done
+
+datetime=$(date +"%m-%d-%Y-%H-%M-%S")
+echo "$datetime $ami is available" >> /home/deploy/AV6/av6allamilist.txt
+#datetime=$(date +"%m-%d-%Y-%H-%M-%S")
+echo $datetime $ami is available >> /home/deploy/AV6/updatedamilistforav6.txt
+
+#ruby /home/deploy/AV6/av6-amimailsend.rb
+
+aws autoscaling update-auto-scaling-group --auto-scaling-group-name 'av6_New_autoscaling_group' --launch-configuration-name 'av6_New_launch_configCopy'
+
+aws autoscaling delete-launch-configuration --launch-configuration-name 'av6_New_launch_config'
+
+aws autoscaling create-launch-configuration --key-name 'shrikant_prod' --instance-type 'm5.12xlarge' --security-groups 'sg-02295039287c6434f' --instance-monitoring Enabled=true --no-ebs-optimized --block-device-mappings '[{"DeviceName": "/dev/sda1","Ebs":{"VolumeSize":1800, "VolumeType":"gp2", "DeleteOnTermination":true}}]' --user-data file:///home/deploy/AV6/myuserdata.txt --launch-configuration-name 'av6_New_launch_config' --image-id $ami
+
+aws autoscaling update-auto-scaling-group --auto-scaling-group-name 'av6_New_autoscaling_group' --launch-configuration-name 'av6_New_launch_config'
+
+datetime=$(date +"%m-%d-%Y-%H-%M-%S")
+echo $datetime $ami is available and updated to launch config >> /home/deploy/AV6/updatedamilistforav6.txt
+echo $datetime $ami is available and updated to launch config >> /home/deploy/AV6/updatedamilistforav6
+
+sudo ruby /home/deploy/AV6/av6-amimailsend.rb
+
+##aws autoscaling create-launch-configuration --key-name 'all_autovalidatator_nishant' --instance-type 'm5.16xlarge' --security-groups 'sg-0cd6792d05055b20e' --instance-monitoring Enabled=true --no-ebs-optimized --block-device-mappings '[{"DeviceName": "/dev/sda1","Ebs":{"VolumeSize":1800, "VolumeType":"gp2", "DeleteOnTermination":true}}]' --launch-configuration-name 'vs-testing' --image-id $ami
+
+##aws autoscaling update-auto-scaling-group --auto-scaling-group-name 'vs-testing-autoscaling' --launch-configuration-name 'vs-testing'
