@@ -30,7 +30,7 @@ def lambda_handler(event, context):
 # Enter the region your instances are in. Include only the region without specifying Availability Zone; e.g., 'us-east-1'
 region = 'ap-south-1'
 # Enter your instances here: ex. ['X-XXXXXXXX', 'X-XXXXXXXX']
-instances = ['i-02a8dd56220c457dd']
+instances = ['i-02a8dd56220c457d']
 
 def lambda_handler(event, context):
     ec2 = boto3.client('ec2', region_name=region)
@@ -46,7 +46,7 @@ print "End : %s" % time.ctime()
 ################################################################
 import boto3
 region1 = 'ap-south-1'    
-instance = ['i-02a8dd56220c457dd']
+instance = ['i-02a8dd56220457d']
 
 def lambda_handler(event, context):
     ec22 = boto3.client('ec2', region_name=region1)
@@ -57,9 +57,9 @@ def lambda_handler(event, context):
     #skv-cap-start
     
     import boto3
-t2_instances = ['i-02a8dd56220c457dd']
+t2_instances = ['i-02a8dd520c457d']
 region = 'ap-south-1'
-instances = ['i-02a8dd56220c457dd']
+instances = ['i-02a8dd5620c457d']
 ec2 = boto3.client('ec2', region_name=region)
 elb = boto3.client('elbv2')
 def lambda_handler(event, context):
@@ -67,11 +67,11 @@ def lambda_handler(event, context):
     print('started your instances: ' + str(instances))
 
     response = elb.modify_listener(
-        ListenerArn='arn:aws:elasticloadbalancing:ap-south-1:152372890086:listener/app/skvv-cap/da87f3ca18f27373/2f3406ebde827479',
+        ListenerArn='arn:aws:elasticloadbalancing:ap-south-1:112372891235:listener/app/skvv-cap/da87f3ca18f27373/2f3406ebde827479',
         DefaultActions=[
             {
                 'Type': 'forward',
-                'TargetGroupArn': 'arn:aws:elasticloadbalancing:ap-south-1:152372890086:targetgroup/skv-cap-target-group/937bda2ae20c69db'
+                'TargetGroupArn': 'arn:aws:elasticloadbalancing:ap-south-1:112372890066:targetgroup/skv-cap-target-group/937bda2ae20c69db'
             }
         ]
     )
@@ -115,11 +115,11 @@ def lambda_handler(event, context):
 elb = boto3.client('elbv2')
 def lambda_handler(event, context):
     response = elb.modify_listener(
-        ListenerArn='arn:aws:elasticloadbalancing:ap-south-1:152372890086:listener/app/skvv-cap/da87f3ca18f27373/2f3406ebde827479',
+        ListenerArn='arn:aws:elasticloadbalancing:ap-south-1:112372890088:listener/app/skvv-cap/da87f3ca18f27373/2f3406ebde827479',
         DefaultActions=[
             {
                 'Type': 'forward',
-                'TargetGroupArn': 'arn:aws:elasticloadbalancing:ap-south-1:152372890086:targetgroup/skvv-cap/ba20b620ba0cf68d'
+                'TargetGroupArn': 'arn:aws:elasticloadbalancing:ap-south-1:112372890088:targetgroup/skvv-cap/ba20b620ba0cf68d'
             }
         ]
     )
